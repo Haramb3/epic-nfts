@@ -11,13 +11,6 @@ const OPENSEA_LINK = '';
 const TOTAL_MINT_COUNT = 50;
 const CONTRACT_ADDRESS='0x3380cF8d21FFC0d9b88367F85e4258285B14f76F';
 
-const options = {method: 'GET'};
-
-const collection = fetch('https://testnets-api.opensea.io/api/v1/collection/randomnounsnft-wmalpqaaj1', options)
-  .then(response => response.json())
-  .then(response => console.log(response))
-  .catch(err => console.error(err));
-
 const App = () => {
 
   const [currentAccount, setCurrentAccount] = useState("");
