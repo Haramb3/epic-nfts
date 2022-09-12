@@ -24,5 +24,9 @@ module.exports = {
       url: process.env.STAGING_ALCHEMY_KEY,
       accounts: [process.env.PRIVATE_KEY],
     },
-  },
+    etherscan: {
+      url: "https://rinkeby.etherscan.io/",
+      apiKey: process.env.ETHERSCAN_KEY,
+    },
+  }
 };

@@ -16,9 +16,6 @@ contract MyEpicNFT is ERC721URIStorage {
         console.log("This is an NFT Contract");
     }
 
-    string baseSvg =
-        "<svg xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='xMinYMin meet' viewBox='0 0 350 350'><style>.base { fill: white; font-family: serif; font-size: 24px; }</style><rect width='100%' height='100%' fill='black' /><text x='50%' y='50%' class='base' dominant-baseline='middle' text-anchor='middle'>";
-
     string[] firstWords = [
         "Success",
         "Addition",
@@ -56,6 +53,63 @@ contract MyEpicNFT is ERC721URIStorage {
         "Shopping",
         "Imagination"
     ];
+
+    string[] colors = [
+        "black",
+        "green",
+        "yellow",
+        "blue",
+        "red",
+        "white",
+        "purple",
+        "orange"
+    ];
+    uint256 totalNFTs = 50;
+    uint256 mintedNFTs = 0;
+
+    event NewEpicNFTMinted(address sender, uint256 tokenId);
+
+    function randomBackGroundColor(uint256 tokenId)
+        public
+        view
+        returns (string memory)
+    {
+        uint256 randColorBackground = uint256(
+            keccak256(
+                abi.encodePacked(
+                    string(
+                        abi.encodePacked(
+                            "BACKGROUND_COLOR",
+                            Strings.toString(tokenId)
+                        )
+                    )
+                )
+            )
+        );
+        randColorBackground = randColorBackground % colors.length;
+        return string(abi.encodePacked(colors[randColorBackground]));
+    }
+
+    function randomWordColor(uint256 tokenId)
+        public
+        view
+        returns (string memory)
+    {
+        uint256 randWordColor = uint256(
+            keccak256(
+                abi.encodePacked(
+                    string(
+                        abi.encodePacked(
+                            "WORD_COLOR",
+                            Strings.toString(tokenId)
+                        )
+                    )
+                )
+            )
+        );
+        randWordColor = randWordColor % colors.length;
+        return string(abi.encodePacked(colors[randWordColor]));
+    }
 
     function pickRandomName(uint256 tokenId)
         public
@@ -111,9 +165,35 @@ contract MyEpicNFT is ERC721URIStorage {
             );
     }
 
+    function getTotalMintedNFTs() public view returns (uint256) {
+        return mintedNFTs;
+    }
+
     function makeAnEpicNFT() public {
+        require(mintedNFTs < totalNFTs);
         // Get the current tokenId, this starts at 0.
         uint256 newItemId = _tokenIds.current();
+
+        string memory colorBackground = randomBackGroundColor(newItemId);
+
+        string memory colorWords = randomWordColor(newItemId);
+        uint256 i = newItemId;
+        while (
+            keccak256(bytes(colorBackground)) == keccak256(bytes(colorWords))
+        ) {
+            i = newItemId + 1;
+            colorBackground = randomBackGroundColor(i);
+        }
+
+        string memory baseSvg = string(
+            abi.encodePacked(
+                "<svg xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='xMinYMin meet' viewBox='0 0 350 350'><style>.base { fill:",
+                colorWords,
+                "; font-family: serif; font-size: 24px; }</style><rect width='100%' height='100%' fill='",
+                colorBackground,
+                "'/><text x='50%' y='50%' class='base' dominant-baseline='middle' text-anchor='middle'>"
+            )
+        );
 
         string memory word = pickRandomName(newItemId);
 
@@ -157,5 +237,7 @@ contract MyEpicNFT is ERC721URIStorage {
 
         // Increment the counter for when the next NFT is minted.
         _tokenIds.increment();
+        emit NewEpicNFTMinted(msg.sender, newItemId);
+        mintedNFTs = mintedNFTs + 1;
     }
 }
